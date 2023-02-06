@@ -40,3 +40,18 @@ jobs:
           name: react-github-actions-build
       - name: Output contents
         run: ls
+      - name: Azure Auth
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Upload to blob storage
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+              az storage blob upload-batch --account-name myreactblobsif332 --auth-mode key -d '$web' -s .
+  #   Azure logout
+      - name: logout
+        run: |
+              az logout
+        if: always()
