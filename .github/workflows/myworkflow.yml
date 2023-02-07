@@ -3,55 +3,67 @@ name: First Workflow
 on: [push,workflow_dispatch]
 
 jobs:
-  build:
+  azureauth:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v3
-      - name: Use Node.js 18
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-      - name: Generate build
-        run: npm run build   
-      # Share artifact inside workflow
-      - name: Share artifact inside workflow
-        uses: actions/upload-artifact@v3
-        with:
-          name: react-github-actions-build
-          path: build
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Get build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: react-github-actions-build
-      - name: Output contents
-        run: ls
       - name: Azure Auth
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      - name: Upload to blob storage
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-              az storage blob upload-batch --account-name mybackendsif332 --auth-mode key -d '$web' -s .
   #   Azure logout
       - name: logout
         run: |
               az logout
         if: always()
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Clone repository
+  #       uses: actions/checkout@v3
+  #     - name: Use Node.js 18
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 18
+  #     - name: Cache dependencies
+  #       id: cache
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: node_modules
+  #         key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+  #     - name: Install dependencies
+  #       if: steps.cache.outputs.cache-hit != 'true'
+  #       run: npm ci
+  #     - name: Generate build
+  #       run: npm run build   
+  #     # Share artifact inside workflow
+  #     - name: Share artifact inside workflow
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: react-github-actions-build
+  #         path: build
+
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Get build artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: react-github-actions-build
+  #     - name: Output contents
+  #       run: ls
+  #     - name: Azure Auth
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+  #     - name: Upload to blob storage
+  #       uses: azure/CLI@v1
+  #       with:
+  #         inlineScript: |
+  #             az storage blob upload-batch --account-name mybackendsif332 --auth-mode key -d '$web' -s .
+  # #   Azure logout
+  #     - name: logout
+  #       run: |
+  #             az logout
+  #       if: always()
